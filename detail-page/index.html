@@ -5,6 +5,9 @@
     <title>Title</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/arrow_style.css">
+
+
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
             integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
@@ -17,26 +20,28 @@
             crossorigin="anonymous"></script>
 
     <script src="https://d3js.org/d3.v4.js"></script>
-    <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.24.0/d3-legend.js"></script>
 
 
 </head>
 <body>
 <div >
+
     <div class="h-50 container-fluid" style="width: 100%">
-        <svg id="my_dataviz" width="1500" height="450"></svg>
+        <svg id="main_map" width="1500" height="450"></svg>
     </div>
     <div class="h-50 row container-fluid m-0 p-0">
         <div class="h-100 col-md-4 container-fluid" style="background: blue">
-
+            <svg id="bar_chart"></svg>
         </div>
         <div class="h-100 col-md-8 container-fluid" style="background: red">
 
         </div>
     </div>
 </div>
-
-<script src="js/main.js"></script>
+<script src="js/map_chart.js"></script>
+<!--<script src="js/arrow.js"></script>-->
 </body>
 </html>

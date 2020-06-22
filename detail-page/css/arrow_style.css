@@ -1,0 +1,29 @@
+.line {
+    stroke: blue;
+    stroke-width: 1.5px;
+    fill: white;
+}
+
+circle {
+    fill: red;
+}
+#marker {
+    stroke: black;
+    fill: black;
+}
+
+
+.countries {
+    fill: none;
+    stroke: #fff;
+    stroke-linejoin: round;
+}
+.legendThreshold {
+    font-size: 12px;
+    font-family: sans-serif;
+}
+.caption {
+    fill: #000;
+    text-anchor: start;
+    font-weight: bold;
+}
