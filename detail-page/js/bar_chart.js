@@ -3,27 +3,27 @@ var datas = [{
     "value": 20,
 },
     {
-        "name": "Bananas",
+        "name": "Huston",
         "value": 12,
     },
     {
-        "name": "Grapes",
+        "name": "New York",
         "value": 19,
     },
     {
-        "name": "Lemons",
+        "name": "Costa Rica",
         "value": 5,
     },
     {
-        "name": "Limes",
+        "name": "Washington",
         "value": 16,
     },
     {
-        "name": "Oranges",
+        "name": "Miami",
         "value": 26,
     },
     {
-        "name": "Pears",
+        "name": "Los Angeles",
         "value": 30,
     }];
 
@@ -37,7 +37,7 @@ var margin = {
     top: 15,
     right: 25,
     bottom: 15,
-    left: 60
+    left: 100
 };
 
 
@@ -80,12 +80,13 @@ var bars = svg.selectAll(".bar")
 
 //append rects
 bars.append("rect")
-    .attr("class", "bar")
+    // .attr("class", "bar")
     .attr("y", function (d) {
         return y(d.name);
     })
     .attr("height", y.bandwidth())
     .attr("x", 0)
+    .attr("fill", function(d){ return d.name === "Costa Rica" ? "#666666" : "#228B22"})
     .attr("width", function (d) {
         return x(d.value);
     });
@@ -103,5 +104,6 @@ bars.append("text")
         return x(d.value) + 3;
     })
     .text(function (d) {
-        return d.value;
+        // return d.value;
+        return "";
     });
