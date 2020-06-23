@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="css/arrow_style.css">
 
 
-
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
             integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
             crossorigin="anonymous"></script>
@@ -27,22 +26,86 @@
 
 </head>
 <body>
-<div >
+<div>
+    <div class="container-fluid p-0 h-100">
+        <div class="row">
+            <div class="col col-md-12">
+                <h1>¿Hacia donde nos vamos? Entendiendo la migración visualizando sus razones</h1>
+            </div>
+        </div>
+        <div class="row container-fluid" style="margin-top: 50px">
+            <div class="col col-md-2 offset-10">
+                <div class="input-group">
+                    <select class="custom-select" id="select_type_id">
+                        <option value="0" selected></option>
+                        <option value="1">GINI index</option>
+                        <option value="2">GDP index</option>
+                        <option value="3">Corruption Perception Index</option>
+                        <option value="4">Crime</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button id="select_type_button_id" class="btn btn-outline-secondary" type="button">Actualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col col-md-6">
+                <div class="row">
+                    <div class="col col-md-12">
+                        <h3 class="text-center">Inflow</h3>
+                    </div>
+                </div>
+                <div class="row" style="align-content:center;">
+                    <svg id="inflow_map" width="700" height="350"></svg>
+                </div>
+            </div>
+            <div class="col col-md-6">
+                <div class="row">
+                    <div class="col col-md-12">
+                        <h3 class="text-center">outflow</h3>
+                    </div>
+                </div>
+                <div class="row" style="align-content:center;">
+                    <svg id="outflow_map" style="align-content: center" width="700" height="350"></svg>
+                </div>
+            </div>
+        </div>
 
+    </div>
+
+    <div class="row container-fluid" style="margin-top: 50px">
+        <div class="col col-md-2 offset-10">
+            <div class="input-group">
+                <select class="custom-select" id="starting_country">
+                    <option value="CRC">Costa Rica</option>
+                </select>
+                <div class="input-group-append">
+                    <button id="starting_country_btn" class="btn btn-outline-secondary" type="button">Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="h-50 container-fluid" style="width: 100%">
         <svg id="main_map" width="1500" height="450"></svg>
     </div>
     <div class="h-100 row container-fluid m-0 p-0">
-        <div class="h-100 col-md-4 container-fluid" >
+        <div class="h-100 col-md-4 container-fluid">
             <svg id="bar_chart" style="height: 600px"></svg>
         </div>
-        <div class="h-100 col-md-8 container-fluid" style="background: red">
-
+        <div class="h-100 col-md-8 container-fluid">
+            <div id="chart"></div>
         </div>
     </div>
 </div>
+
+<script src="js/line_chart.js"></script>
 <script src="js/bar_chart.js"></script>
 <script src="js/map_chart.js"></script>
+
+<script src="js/main.js"></script>
 
 </body>
 </html>
