@@ -50,8 +50,8 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
         .defer(d3.json, "http://enjalot.github.io/wwsd/data/world/world-110m.geojson")  // World shape
         .defer(d3.csv, type_map_path,function(d) { data_map.set(d.code, +d.total); return d;})
         .defer(d3.csv, "https://gist.githubusercontent.com/mariors/7ec6842e93dcc36858c99998009549aa/raw/38307b0f7ac48cdf9d1187d9925fa1c136b978fa/country_location.csv", position_mapper) // Country Position
-        .defer(d3.csv, "https://gist.githubusercontent.com/Anthroprox/c6fbf8c7c22988087f7b5cbd5f572b0e/raw/4f988f1e305614c3dbb2eb34161f51ce5bff4e4a/inflow",inflow_mapper) // Inflow
-        .defer(d3.csv, "https://gist.githubusercontent.com/Anthroprox/c6fbf8c7c22988087f7b5cbd5f572b0e/raw/4f988f1e305614c3dbb2eb34161f51ce5bff4e4a/outflow",outflow_mapper) // Outflow
+        .defer(d3.csv, "https://gist.githubusercontent.com/Anthroprox/c6fbf8c7c22988087f7b5cbd5f572b0e/raw/178c84df45ab42d947eda2715e0de732777d9ec7/inflow",inflow_mapper) // Inflow
+        .defer(d3.csv, "https://gist.githubusercontent.com/Anthroprox/c6fbf8c7c22988087f7b5cbd5f572b0e/raw/178c84df45ab42d947eda2715e0de732777d9ec7/outflow",outflow_mapper) // Outflow
         .await(ready);
 
     var global_dataGeo = undefined;
