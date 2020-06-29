@@ -105,7 +105,7 @@ function draw_map(origin)
 // .attr("d", "M2,2 L2,11 L10,6 L2,2");
 
 
-            console.log(path)
+            //console.log(path)
 
             var arrow = svg.append("svg:path")
                 .attr("d", d3.symbol().type(d3.symbolTriangle)(10, 1));
@@ -126,7 +126,7 @@ function draw_map(origin)
                 var angl = Math.atan2(pe.y - ps.y, pe.x - ps.x) * (180 / Math.PI) - 270;
                 var rot_tran = "rotate(" + angl + ")";
                 return function (d, i, a) {
-                    console.log(d);
+                    //console.log(d);
 
                     return function (t) {
                         var p = path.getPointAtLength(t * l);
