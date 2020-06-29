@@ -1,6 +1,14 @@
 
-function draw_map()
+function draw_map(origin)
 {
+    var origin_migration_data = d3.map()
+    for(dt in migration_data){
+        if(migration_data[dt].CO2 === origin){
+            origin_migration_data.set(migration_data[dt].COU, migration_data[dt].Value);
+        }
+    }
+
+    d3.select("#main_map").selectAll("*").remove()
     var svg = d3.select("#main_map"),
         width = +svg.attr("width"),
         height = +svg.attr("height");
@@ -14,11 +22,11 @@ function draw_map()
         .projection(projection);
 
 // Data and color scale
-    var data = d3.map();
+
     var colorScheme = d3.schemeBuGn[6];
-    colorScheme.unshift("#eee")
+    // colorScheme.unshift("#eee")
     var colorScale = d3.scaleThreshold()
-        .domain([1, 100, 250, 500, 800, 1001])
+        .domain([50, 100, 250, 500, 800, 1001])
         .range(colorScheme);
 
 // Legend
@@ -27,22 +35,29 @@ function draw_map()
         .attr("transform", "translate(20,20)");
 
 // Load external data and boot
+
+
+
     d3.queue()
         .defer(d3.json, "http://enjalot.github.io/wwsd/data/world/world-110m.geojson")
-        .defer(d3.csv, "https://gist.githubusercontent.com/mariors/20c4e7043dd5e8d9042ea944fbe9970d/raw/d18cf84b954e86c502187df576040c0f838c9d14/gistfile1.txt") // Position of circles
-        .defer(d3.csv, "https://gist.githubusercontent.com/mariors/5298d78c6de66999cedc2cad39d2c641/raw/f470e3a5378fd43e729cbb263842741d0b445c3d/mooc.csv", function (d) {
-            data.set(d.code, +d.total);
-        })
         .await(ready);
 
-    function draw_arrows(country) {
+    function draw_arrows() {
         var projection_arrow = d3.geoNaturalEarth()
             .scale(width / 3 / Math.PI)
             .translate([width / 2.33, height / 2.57]);
 
-        var newData = country.map(record => {
-            var coords = projection_arrow([+record.longitude, +record.latitude]);
-            var coords_origin = projection_arrow([-80, 10]);
+        // var newData = country.map(record => {
+        //     var coords = projection_arrow([+record.longitude, +record.latitude]);
+        //     var coords_origin = projection_arrow([-80, 10]);
+        //     return {source: {x: coords_origin[0], y: coords_origin[1]}, target: {x: coords[0], y: coords[1]}};
+        // });
+
+        var newData = origin_migration_data.keys().map(key => {
+            country_data = country_lat_long.get(key)
+            origin_country_data = country_lat_long.get(origin)
+            var coords = projection_arrow([+country_data.longitude, +country_data.latitude]);
+            var coords_origin = projection_arrow([+origin_country_data.longitude, +origin_country_data.latitude]);
             return {source: {x: coords_origin[0], y: coords_origin[1]}, target: {x: coords[0], y: coords[1]}};
         });
         for (d in newData) {
@@ -133,7 +148,7 @@ function draw_map()
         }
     }
 
-    function ready(error, topo, country) {
+    function ready(error, topo) {
         if (error) throw error;
 
         // Draw the map
@@ -144,14 +159,14 @@ function draw_map()
             .enter().append("path")
             .attr("fill", function (d) {
                 // Pull data for this country
-                d.total = data.get(d.id) || 0;
+                d.total = +origin_migration_data.get(d.id) || 0;
                 // Set the color
-                return colorScale(Math.random() * 1000);
+                return colorScale(d.total);
             })
             .attr("d", path);
 
         // --------------------------
 
-        draw_arrows(country);
+        draw_arrows();
     }
 }
