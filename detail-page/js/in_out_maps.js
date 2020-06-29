@@ -2,6 +2,9 @@
 // https://github.com/d3/d3-scale-chromatic
 
 var data_map = d3.map();
+var position_map = d3.map();
+var inflow_map = d3.map();
+var outflow_map = d3.map();
 
 function load_inflow_outflow_maps(type_map_path, function_color_map) {
     // The svg
@@ -26,25 +29,54 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
         .translate([ outflow_width/2, outflow_height/2 ])
 
 
+    var position_mapper = (row) => {
+        position_map.set(row.code,row)
+        return row;
+    }
+
+    var inflow_mapper = (row) =>{
+        inflow_map.set(row.code,row);
+        return row;
+    }
+
+    var outflow_mapper = (row) =>{
+        outflow_map.set(row.code,row);
+        return row;
+    }
+
 
     d3.queue()
         // .defer(d3.json, "https://raw.githubusercontent.com/shawnbot/topogram/master/data/us-states.geojson")  // World shape
         .defer(d3.json, "http://enjalot.github.io/wwsd/data/world/world-110m.geojson")  // World shape
-        .defer(d3.csv, type_map_path,function(d) { data_map.set(d.code, +d.total); })
-        .defer(d3.csv, "https://gist.githubusercontent.com/mariors/20c4e7043dd5e8d9042ea944fbe9970d/raw/93eddc48f231fa563d95bee464da8a834bb21fbb/gistfile1.txt") // Position of circles
+        .defer(d3.csv, type_map_path,function(d) { data_map.set(d.code, +d.total); return d;})
+        .defer(d3.csv, "https://gist.githubusercontent.com/mariors/7ec6842e93dcc36858c99998009549aa/raw/38307b0f7ac48cdf9d1187d9925fa1c136b978fa/country_location.csv", position_mapper) // Country Position
+        .defer(d3.csv, "https://gist.githubusercontent.com/Anthroprox/c6fbf8c7c22988087f7b5cbd5f572b0e/raw/4f988f1e305614c3dbb2eb34161f51ce5bff4e4a/inflow",inflow_mapper) // Inflow
+        .defer(d3.csv, "https://gist.githubusercontent.com/Anthroprox/c6fbf8c7c22988087f7b5cbd5f572b0e/raw/4f988f1e305614c3dbb2eb34161f51ce5bff4e4a/outflow",outflow_mapper) // Outflow
         .await(ready);
 
     var global_dataGeo = undefined;
 
-    function ready(error, dataGeo, data, circles) {
+    function ready(error, dataGeo, data, position, inflow_percentage, outflow_percentage) {
         global_dataGeo = dataGeo
+        // console.log(error);
+        // console.log(dataGeo);
+        // console.log(data);
+        // console.log(position)
+        // console.log(inflow_percentage);
+        // console.log(outflow_percentage);
+
         // Create a color scale
 
         // Add a scale for bubble size
-        var valueExtent = d3.extent(circles, function(d) { return +d.amount; })
-        var size = d3.scaleSqrt()
-            .domain(valueExtent)  // What's in the data
-            .range([ 1, 50])  // Size in pixel
+        var size_inflow = d3.scaleSqrt()
+            // .domain(d3.extent(position, function(row) { return inflow_map.get(row.code)? +inflow_map.get(row.code).percentage : 0; }))  // What's in the data
+            .domain([0, 1])
+            .range([ 1, 3])  // Size in pixel
+
+        var size_out = d3.scaleSqrt()
+            // .domain(d3.extent(position, function(row) { return inflow_map.get(row.code)? +inflow_map.get(row.code).percentage : 0; }))  // What's in the data
+            .domain([0, 1])
+            .range([ 1, 3])  // Size in pixel
 
 
         // Draw the map
@@ -62,15 +94,15 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
 
         // Add circles:
         inflow
-            .selectAll("myCircles")
-            .data(circles.sort(function(a,b) { return +b.amount - +a.amount }).filter(function(d,i){ return i<1000 }))
+            .selectAll("circles_inflow")
+            .data(inflow_percentage)
             .enter()
             .append("circle")
-            .attr("cx", function(d){ return inflow_projection([+d.longitude, +d.latitude])[0] })
-            .attr("cy", function(d){ return inflow_projection([+d.longitude, +d.latitude])[1] })
-            .attr("r", function(d){ return size(+d.amount) * 1/2 })
-            .style("fill", function(d){ return "green" })
-            .attr("stroke", function(d){ if(d.amount>2000){return "black"}else{return "none"}  })
+            .attr("cx", function(row){ var location = position_map.get(row.code); return inflow_projection([+location.longitude, +location.latitude])[0] })
+            .attr("cy", function(row){ var location = position_map.get(row.code); return inflow_projection([+location.longitude, +location.latitude])[1]; })
+            .attr("r", function(row) { return size_inflow(inflow_map.get(row.code)? +inflow_map.get(row.code).percentage : 0); })
+            .style("fill", function(row){ return "green" })
+            .attr("stroke", function(row){ return "none" })
             .attr("stroke-width", 1)
             .attr("fill-opacity", .3)
 
@@ -90,18 +122,17 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
 
         // Add circles:
         outflow
-            .selectAll("myCircles2")
-            .data(circles.sort(function(a,b) { return +b.amount - +a.amount }).filter(function(d,i){ return i<1000 }))
+            .selectAll("circles_outflow")
+            .data(outflow_percentage)
             .enter()
             .append("circle")
-            .attr("cx", function(d){ return outflow_projection([+d.longitude, +d.latitude])[0] })
-            .attr("cy", function(d){ return outflow_projection([+d.longitude, +d.latitude])[1] })
-            .attr("r", function(d){ return size(+d.amount) * 1/2 })
-            .style("fill", function(d){ return "green" })
-            .attr("stroke", function(d){ if(d.amount>2000){return "black"}else{return "none"}  })
+            .attr("cx", function(row){ var location = position_map.get(row.code); return inflow_projection([+location.longitude, +location.latitude])[0] })
+            .attr("cy", function(row){ var location = position_map.get(row.code); return inflow_projection([+location.longitude, +location.latitude])[1]; })
+            .attr("r", function(row) { return size_inflow(outflow_map.get(row.code)? +outflow_map.get(row.code).percentage : 0); })
+            .style("fill", function(row){ return "red" })
+            .attr("stroke", function(row){ return "none" })
             .attr("stroke-width", 1)
             .attr("fill-opacity", .3)
-
 
         // Add title and explanation
 
