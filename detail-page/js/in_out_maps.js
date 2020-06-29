@@ -20,13 +20,13 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
     // Map and projection
     var inflow_projection = d3.geoNaturalEarth()
         .center([0,0])                // GPS of location to zoom on
-        .scale(100)                       // This is like the zoom
-        .translate([ inflow_width/2, inflow_height/2 ])
+        .scale(150)                       // This is like the zoom
+        .translate([ inflow_width/4, inflow_height/2 ])
 
     var outflow_projection = d3.geoNaturalEarth()
         .center([0,0])                // GPS of location to zoom on
-        .scale(100)                       // This is like the zoom
-        .translate([ outflow_width/2, outflow_height/2 ])
+        .scale(150)                       // This is like the zoom
+        .translate([ outflow_width/4, outflow_height/2 ])
 
 
     var position_mapper = (row) => {
@@ -71,12 +71,12 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
         var size_inflow = d3.scaleSqrt()
             // .domain(d3.extent(position, function(row) { return inflow_map.get(row.code)? +inflow_map.get(row.code).percentage : 0; }))  // What's in the data
             .domain([0, 1])
-            .range([ 1, 3])  // Size in pixel
+            .range([ 1, 5])  // Size in pixel
 
         var size_out = d3.scaleSqrt()
             // .domain(d3.extent(position, function(row) { return inflow_map.get(row.code)? +inflow_map.get(row.code).percentage : 0; }))  // What's in the data
             .domain([0, 1])
-            .range([ 1, 3])  // Size in pixel
+            .range([ 1, 5])  // Size in pixel
 
 
         // Draw the map
@@ -116,7 +116,7 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
             .append("path")
             .attr("fill", function_color_map)
             .attr("d", d3.geoPath()
-                .projection(inflow_projection)
+                .projection(outflow_projection)
             )
             .style("opacity", .3)
 
@@ -128,7 +128,7 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
             .append("circle")
             .attr("cx", function(row){ var location = position_map.get(row.code); return inflow_projection([+location.longitude, +location.latitude])[0] })
             .attr("cy", function(row){ var location = position_map.get(row.code); return inflow_projection([+location.longitude, +location.latitude])[1]; })
-            .attr("r", function(row) { return size_inflow(outflow_map.get(row.code)? +outflow_map.get(row.code).percentage : 0); })
+            .attr("r", function(row) { return size_out(outflow_map.get(row.code)? +outflow_map.get(row.code).percentage : 0); })
             .style("fill", function(row){ return "red" })
             .attr("stroke", function(row){ return "none" })
             .attr("stroke-width", 1)
