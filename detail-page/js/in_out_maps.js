@@ -18,12 +18,12 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
 
 
     // Map and projection
-    var inflow_projection = d3.geoMercator()
+    var inflow_projection = d3.geoNaturalEarth()
         .center([0,0])                // GPS of location to zoom on
         .scale(100)                       // This is like the zoom
         .translate([ inflow_width/2, inflow_height/2 ])
 
-    var outflow_projection = d3.geoMercator()
+    var outflow_projection = d3.geoNaturalEarth()
         .center([0,0])                // GPS of location to zoom on
         .scale(100)                       // This is like the zoom
         .translate([ outflow_width/2, outflow_height/2 ])
@@ -81,6 +81,7 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
 
         // Draw the map
         inflow.append("g")
+            .attr("class", "countries")
             .selectAll("path")
             .data(dataGeo.features)
             .enter()
@@ -89,7 +90,6 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
             .attr("d", d3.geoPath()
                 .projection(inflow_projection)
             )
-            .style("stroke", "none")
             .style("opacity", .3)
 
         // Add circles:
@@ -109,6 +109,7 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
 
         // Draw the map
         outflow.append("g")
+            .attr("class", "countries")
             .selectAll("path")
             .data(dataGeo.features)
             .enter()
@@ -117,7 +118,6 @@ function load_inflow_outflow_maps(type_map_path, function_color_map) {
             .attr("d", d3.geoPath()
                 .projection(inflow_projection)
             )
-            .style("stroke", "none")
             .style("opacity", .3)
 
         // Add circles:
