@@ -15,7 +15,7 @@ function draw_map(origin, origin_migration_data)
     var path = d3.geoPath()
         .projection(projection);
 
-    var colorScheme = d3.schemeBuGn[9];
+    var colorScheme = d3.schemeGreens[9];
     // colorScheme.unshift("#eee")
     var colorScale = d3.scaleThreshold()
         .domain([1,5,25,50, 100, 250, 500, 800, 1001])

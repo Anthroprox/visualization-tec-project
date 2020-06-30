@@ -103,7 +103,7 @@ function paint_bar_charts(origin_country_code, destiny_country) {
 
         }).on("click",function(d){
 
-            alert(JSON.stringify(d));
+            update_line_chart(d.code);
 
         });
 
