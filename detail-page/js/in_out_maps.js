@@ -2,9 +2,55 @@
 // https://github.com/d3/d3-scale-chromatic
 
 var data_map = d3.map();
+var code_map_2_to_3 = d3.map();
+var code_map_3_to_2 = d3.map();
 var position_map = d3.map();
 var inflow_map = d3.map();
 var outflow_map = d3.map();
+var country_to_code_3 = {
+    data : [],
+    set(key, value){
+        this.data.push({
+            key: key,
+            value: value
+        });
+    },
+    get(key) {
+        return this.data.reduce((a,n) => {
+            var b = n.key.includes(key);
+
+            if(b && !a.boolean){
+                return {
+                    string: n.value,
+                    boolean: b
+                };
+            }
+            return a;
+        }, {
+            string: undefined,
+            boolean: false
+        }).string;
+    }
+};
+
+
+
+function cleaner_maps(){
+    d3.select("#inflow_map").remove();
+    d3.select("#inflow_map_parent")
+        .append("svg")
+        .attr("id","inflow_map")
+        .attr("width",1500)
+        .attr("height",450);
+
+    d3.select("#outflow_map").remove();
+    d3.select("#outflow_map_parent")
+        .append("svg")
+        .attr("id","outflow_map")
+        .attr("width",1500)
+        .attr("height",450);
+    load_inflow_outflow_maps(DATA_PATH,DATA_MAPPER, "#b8b8b8");
+}
 
 function load_inflow_outflow_maps(data_map_path, function_mapper, function_color_map) {
     // The svg
@@ -44,6 +90,17 @@ function load_inflow_outflow_maps(data_map_path, function_mapper, function_color
         return row;
     }
 
+    var codes_mapper = (row) => {
+        code_map_2_to_3.set(row["code-2"],row["code-3"]);
+        code_map_3_to_2.set(row["code-3"],row["code-2"]);
+        return row;
+    }
+
+    var country_to_code_mapper = (row) => {
+        country_to_code_3.set(row["Country"], row["Alpha-3 code"]);
+        return row;
+    }
+
 
     d3.queue()
         // .defer(d3.json, "https://raw.githubusercontent.com/shawnbot/topogram/master/data/us-states.geojson")  // World shape
@@ -52,11 +109,13 @@ function load_inflow_outflow_maps(data_map_path, function_mapper, function_color
         .defer(d3.csv, "https://gist.githubusercontent.com/mariors/7ec6842e93dcc36858c99998009549aa/raw/38307b0f7ac48cdf9d1187d9925fa1c136b978fa/country_location.csv", position_mapper) // Country Position
         .defer(d3.csv, "https://gist.githubusercontent.com/Anthroprox/c6fbf8c7c22988087f7b5cbd5f572b0e/raw/178c84df45ab42d947eda2715e0de732777d9ec7/inflow",inflow_mapper) // Inflow
         .defer(d3.csv, "https://gist.githubusercontent.com/Anthroprox/c6fbf8c7c22988087f7b5cbd5f572b0e/raw/178c84df45ab42d947eda2715e0de732777d9ec7/outflow",outflow_mapper) // Outflow
+        .defer(d3.csv, "https://gist.githubusercontent.com/Anthroprox/b62b11a274092151dee6a48659e4c3b2/raw/7db94ec401442e06d02ec2a8a2790dcdfbeb2335/country-codes-2-to-codes-3.csv", codes_mapper)
+        .defer(d3.csv, "https://gist.githubusercontent.com/Anthroprox/082ede95dd09c1b9919484a49f74ac9d/raw/66291ef4cc8667e3c9b670f192cda91afe437c66/country-codes.csv", country_to_code_mapper)
         .await(ready);
 
     var global_dataGeo = undefined;
 
-    function ready(error, dataGeo, data, position, inflow_percentage, outflow_percentage) {
+    function ready(error, dataGeo, data, position, inflow_percentage, outflow_percentage, codes) {
         global_dataGeo = dataGeo
         // console.log(error);
         // console.log(dataGeo);
@@ -211,62 +270,96 @@ function_mapping_blue  = (d) => {
     return colorScale_blue(d.total);
 }
 
-var colorScheme_red = d3.schemeReds[6];
+var colorScheme_red = d3.schemeReds[9];
 colorScheme_red.unshift("#eee")
 var colorScale_red = d3.scaleThreshold()
-    .domain([1, 6, 11, 26, 101, 1001])
+    // .domain([21095243.777777776, 23732149.25, 27122456.285714287, 31642865.666666668, 37971438.8, 47464298.5, 63285731.333333336, 94928597, 189857194])
+    .domain([20000, 40000, 50000, 60000, 80000, 100000, 120000, 140000, 160000])
     .range(colorScheme_red);
 
 
 function_mapping_red  = (d) => {
     // Pull data for this country
-    d.total = data_map.get(d.id) || 0;
+    d.total =  gdp_map.get(d.id)? gdp_map.get(d.id).index : 0;
     // Set the color
     return colorScale_red(d.total);
 }
 
-var colorScheme_green = d3.schemeBuGn[6];
+var colorScheme_green = d3.schemeBuGn[9];
 colorScheme_green.unshift("#eee")
 var colorScale_green = d3.scaleThreshold()
-    .domain([1, 6, 11, 26, 101, 1001])
-    .range(colorScheme_green);
+    .domain([30, 35, 40, 43, 46, 49,53, 56, 61, 65])
+    .range(colorScheme_green.reverse());
 
 
 function_mapping_green  = (d) => {
     // Pull data for this country
-    d.total = data_map.get(d.id) || 0;
+    var code = code_map_3_to_2.get(d.id);
+    d.total =  corruption_map.get(code)? corruption_map.get(code).index : 0;
     // Set the color
     return colorScale_green(d.total);
 }
 
-var colorScheme_purple = d3.schemeBuPu[6];
+var colorScheme_purple = d3.schemeBuPu[9];
 colorScheme_purple.unshift("#eee")
 var colorScale_purple = d3.scaleThreshold()
-    .domain([1, 6, 11, 26, 101, 1001])
+    .domain([30, 35, 40, 43, 46, 49,53, 56, 61, 65])
     .range(colorScheme_purple);
 
 
 function_mapping_purple  = (d) => {
     // Pull data for this country
-    d.total = data_map.get(d.id) || 0;
+    d.total =  crime_map.get(d.id)? crime_map.get(d.id).index : 0;
     // Set the color
     return colorScale_purple(d.total);
 }
 
 var gini_map = d3.map();
+var gdp_map = d3.map();
+var corruption_map = d3.map();
+var crime_map = d3.map();
 
 
-const DATA_PATH = "https://gist.githubusercontent.com/palewire/d2906de347a160f38bc0b7ca57721328/raw/3429696a8d51ae43867633ffe438128f8c396998/mooc-countries.csv"
+const DATA_PATH = "https://gist.githubusercontent.com/palewire/d2906de347a160f38bc0b7ca57721328/raw/3429696a8d51ae43867633ffe438128f8c396998/mooc-countries.csv";
 const DATA_MAPPER = (row) => {return row;};
 const DATA_GINI_PATH = "https://gist.githubusercontent.com/Anthroprox/72c1fffd16bcb571a3eb6e7702801955/raw/97f9c41f2fcde19817efe96a17cfc586b0812dd1/GINI.csv";
 const DATA_GINI_MAPPER = (row) => {
     var t =  {
         code: row["Country Code"],
-        index:  Math.max( (+row["2015"]),(+row["2016"]),(+row["2017"]),(+row["2018"]),(+row["2019"]))
+        index:  Math.max( (+row["2015"]|| 0),(+row["2016"]|| 0),(+row["2017"]|| 0),(+row["2018"]|| 0),(+row["2019"]|| 0))
     };
-    gini_map.set(t.code, t);
+    gini_map.set(t.code,t);
     return t;
 };
+const DATA_GDP_PATH = "https://gist.githubusercontent.com/mariors/89c302bc8d5dded88f2a83b2bfee35fc/raw/3bfe2f88a5379d5ec19097979c425462741f0b09/GDP.csv";
+const DATA_GDP_MAPPER = (row) => {
+    var t = {
+        code: row["Country Code"],
+        index: Math.max( (+row["2015"]|| 0),(+row["2016"]|| 0),(+row["2017"]|| 0),(+row["2018"]|| 0),(+row["2019"]|| 0))
+    };
+    gdp_map.set(t.code,t);
+    return t;
+}
+const DATA_CORRUPTION_PATH = "https://gist.githubusercontent.com/Anthroprox/a4918c3beedfab3468b855abf7c511f9/raw/75ffe1566f2ee33f82e8ab6e0978eb17245b819d/corruption_index.csv";
+const DATA_CORRUPTION_MAPPER = (row) => {
+    var t = {
+        code: row["ISO 3166 Country Code"],
+        index: Math.max( (+row["2015"]|| 0),(+row["2016"]|| 0),(+row["2017"]|| 0),(+row["2018"]|| 0),(+row["2019"]|| 0))
+    };
+    corruption_map.set(t.code,t);
+    return t;
+}
+const DATA_CRIME_PATH = "https://gist.githubusercontent.com/Anthroprox/db7cc88d8d137406c3b8062c7a3e5ca7/raw/e36473b3c3b3a384ea3e4dfff3e6d8f1d152b270/crime.csv";
+const DATA_CRIME_MAPPER = (row) => {
+    code = country_to_code_3.get(row.Country);
+    if(!code) return undefined;
+    var t = {
+        code: code,
+        index: row["Crime"]
+    };
+    crime_map.set(t.code,t);
+    return t;
+}
 
 const NONE = 0;
 const GINI = 1;
@@ -275,40 +368,36 @@ const CORRUPTION = 3;
 const CRIME = 4;
 
 $( document ).ready(function() {
-    const DATA = d3.csv("https://gist.githubusercontent.com/palewire/d2906de347a160f38bc0b7ca57721328/raw/3429696a8d51ae43867633ffe438128f8c396998/mooc-countries.csv", (row) => {return row;})
     load_inflow_outflow_maps(DATA_PATH, DATA_MAPPER,"#b8b8b8");
 });
 
 $( "#select_type_button_id" ).click(function() {
 
-
-
     var option = +$("#select_type_id").val();
-    console.log(option);
     switch(option) {
         case NONE:
-            console.log("NONE");
-            load_inflow_outflow_maps(DATA,DATA_MAPPER, "#b8b8b8");
+            // console.log("NONE");
+            cleaner_maps();
             break;
         case GINI:
-            console.log("GINE");
-            load_inflow_outflow_maps(DATA_GINI_PATH, DATA_GINI_MAPPER,"#b8b8b8");
+            // console.log("GINE");
+            cleaner_maps();
             load_inflow_outflow_maps(DATA_GINI_PATH, DATA_GINI_MAPPER, function_mapping_blue);
             break;
         case GDP:
-            console.log("GDP");
-            load_inflow_outflow_maps(DATA_GINI, "#b8b8b8");
-            load_inflow_outflow_maps(DATA_GINI, function_mapping_red);
+            // console.log("GDP");
+            cleaner_maps();
+            load_inflow_outflow_maps(DATA_GDP_PATH, DATA_GDP_MAPPER, function_mapping_red);
             break;
         case CORRUPTION:
-            console.log("CORRUPTION");
-            load_inflow_outflow_maps(DATA_GINI, "#b8b8b8");
-            load_inflow_outflow_maps(DATA_GINI, function_mapping_green);
+            // console.log("CORRUPTION");
+            cleaner_maps();
+            load_inflow_outflow_maps(DATA_CORRUPTION_PATH, DATA_CORRUPTION_MAPPER, function_mapping_green);
             break;
         case CRIME:
-            console.log("CRIME");
-            load_inflow_outflow_maps(DATA_GINI, "#b8b8b8");
-            load_inflow_outflow_maps(DATA_GINI, function_mapping_purple);
+            // console.log("CRIME");
+            cleaner_maps();
+            load_inflow_outflow_maps(DATA_CRIME_PATH, DATA_CRIME_MAPPER, function_mapping_purple);
             break;
         default:
         // code block
