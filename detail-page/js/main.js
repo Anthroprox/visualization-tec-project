@@ -17,7 +17,17 @@ d3.queue()
     .await(ready_document);
 
 function ready_document(){
-    draw_map("CRI");
+    var origin_migration_data = d3.map()
+    for(dt in migration_data){
+        if(migration_data[dt].CO2 === "CRI"){
+            if(migration_data[dt].Value > 0)
+                origin_migration_data.set(migration_data[dt].COU, migration_data[dt].Value);
+        }
+    }
+
+
+    draw_map("CRI", origin_migration_data );
+    paint_bar_charts("CRI",origin_migration_data);
 
 }
 
@@ -25,5 +35,15 @@ function ready_document(){
 function updateMap(){
     var e = document.getElementById("starting_country");
     var country = e.options[e.selectedIndex].value;
-    draw_map(country);
+
+    var origin_migration_data = d3.map()
+    for(dt in migration_data){
+        if(migration_data[dt].CO2 === country){
+            if(migration_data[dt].Value > 0)
+                origin_migration_data.set(migration_data[dt].COU, migration_data[dt].Value);
+        }
+    }
+
+    draw_map(country,origin_migration_data);
+    paint_bar_charts(country,origin_migration_data);
 }
